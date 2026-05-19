@@ -28,7 +28,7 @@ img.save(OUTPUT_DIR / "01_foto_asli.png")
 
 wm_img = Image.new("L", (WATERMARK_SIZE, WATERMARK_SIZE), 0)
 draw = ImageDraw.Draw(wm_img)
-draw.text((6, 9), "WM", fill=255)
+draw.text((4, 11), "greg", fill=255)
 
 watermark = (np.array(wm_img) > 127).astype(np.uint8)
 

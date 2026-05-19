@@ -52,7 +52,7 @@ Gambar harus dibuat seragam ukurannya dan dibagi menjadi blok 8 × 8 agar dapat 
 
 ## Step 2 — Pembuatan Watermark Biner
 
-Watermark dibuat sebagai citra biner berukuran **32 × 32 piksel** dengan teks `WM`.
+Watermark dibuat sebagai citra biner berukuran **32 × 32 piksel** dengan teks `Greg`.
 
 Watermark ini kemudian dikonversi menjadi bit `0` dan `1` sebelum disisipkan ke dalam gambar.
 
