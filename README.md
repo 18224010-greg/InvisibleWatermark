@@ -1,115 +1,109 @@
 # Invisible Watermarking
 
-Proyek ini menambahkan *invisible watermark* pada foto wajah sendiri menggunakan metode DCT, lalu menguji ketahanan watermark terhadap kompresi JPEG dengan beberapa nilai *Quality Factor* (QF).
+This project implements **invisible image watermarking** using the **DCT (Discrete Cosine Transform)** method.  
+The watermark is embedded into a face image, then tested against **JPEG compression** at multiple **Quality Factor (QF)** values.
 
-## Identitas
+## Identity
 
-- Nama: Gregory William Sutjipto
-- NIM: 18224010
-
----
-
-## Tujuan
-
-1. Menyisipkan watermark ke foto wajah sendiri.
-2. Menguji apakah watermark masih bisa diekstrak setelah gambar dikompresi JPEG.
-3. Menentukan batas QF minimum yang masih dianggap berhasil.
+- **Name:** Gregory William Sutjipto
+- **NIM:** 18224010
 
 ---
 
-## Metode Singkat
+## Project Objective
 
-Metode yang digunakan adalah **DCT-based watermarking**.
+The objectives of this project are:
 
-- Foto diubah ke ukuran **512 × 512**
-- Watermark dibuat dalam bentuk citra biner **32 × 32**
-- Watermark disisipkan ke channel **luminance (Y)** pada blok **8 × 8**
-- Hasil watermarking diuji dengan kompresi JPEG pada beberapa nilai QF
-- Watermark diekstrak kembali dan dievaluasi dengan **BER** dan **Accuracy**
+1. To embed an invisible watermark into a personal face image.
+2. To evaluate watermark robustness after JPEG compression.
+3. To determine the lowest acceptable JPEG quality factor for successful watermark extraction.
 
 ---
 
-## Step by Step
+## Method Overview
 
-### Step 1 — Menyiapkan foto wajah
+The system works as follows:
 
-Foto wajah dibaca, diperbaiki orientasinya, diubah ke format RGB, lalu di-*resize* menjadi 512 × 512.
-
-![Foto Asli](hasil_watermarking/01_foto_asli.png)
-
----
-
-### Step 2 — Membuat watermark biner
-
-Watermark dibuat dalam bentuk citra biner 32 × 32 dengan teks `WM`.
-
-![Watermark Asli](hasil_watermarking/02_watermark_asli.png)
+- The input face image is resized to **512 × 512**
+- A binary watermark is created in size **32 × 32**
+- The watermark is embedded into the **Y (luminance)** channel
+- Embedding is done in the **DCT domain** on **8 × 8 blocks**
+- The watermarked image is compressed using JPEG at multiple QF values
+- The watermark is extracted again and evaluated using **BER** and **Accuracy**
 
 ---
 
-### Step 3 — Menyisipkan watermark ke foto
+# Results
 
-Watermark disisipkan ke foto menggunakan metode DCT pada blok 8 × 8. Hasilnya adalah foto berwatermark yang secara visual masih mirip dengan foto asli.
+## Step 1 — Image preprocessing and 8×8 block preparation
 
-![Foto Berwatermark](hasil_watermarking/03_foto_berwatermark_lossless.png)
+At the beginning, the face image is loaded, converted into RGB, resized to **512 × 512**, and prepared for DCT-based processing.  
+The image is later divided into **8 × 8 blocks**, because DCT embedding is performed block by block.
 
----
+![Step 1](docs/step1_preprocessing.png)
 
-### Step 4 — Mengekstrak watermark tanpa kompresi
-
-Sebelum diuji dengan JPEG, watermark diekstrak terlebih dahulu dari gambar berwatermark tanpa kompresi untuk memastikan proses penyisipan berhasil.
-
-![Watermark Ekstrak Tanpa Kompresi](hasil_watermarking/04_watermark_ekstrak_lossless.png)
+**Main idea:**  
+This step prepares the image so that watermark embedding can be done in a structured frequency-domain representation.
 
 ---
 
-### Step 5 — Mengompresi gambar dengan berbagai QF
+## Step 2 — Binary watermark generation
 
-Gambar berwatermark dikompresi menggunakan JPEG dengan nilai QF berikut:
+A binary watermark is created with size **32 × 32** using the text **“WM”**.  
+The watermark is converted into bits (`0` and `1`) before being embedded into the image.
+
+![Step 2](docs/step2_watermark.png)
+
+**Main idea:**  
+The watermark does not appear directly as visible text on the photo, but is represented as a binary pattern.
+
+---
+
+## Step 3 — DCT embedding process
+
+The face image is transformed into the **YCrCb** color space, and the watermark is embedded in the **Y channel**.  
+For each selected 8 × 8 block, two DCT coefficients are modified to represent watermark bit `0` or `1`.
+
+![Step 3](docs/step3_embedding.png)
+
+**Main idea:**  
+The watermark is hidden in the DCT coefficients, making it invisible to the human eye while still possible to recover later.
+
+---
+
+## Step 4 — JPEG compression test
+
+The watermarked image is compressed using JPEG at the following QF values:
 
 `100, 95, 90, 80, 70, 60, 50, 40, 30, 20, 10, 5`
 
----
+A lower QF means stronger compression and a higher chance that watermark information will be damaged.
 
-### Step 6 — Mengekstrak watermark dari hasil JPEG
+![Step 4](docs/step4_jpeg_test.png)
 
-Setelah kompresi, watermark diekstrak kembali dari setiap gambar untuk melihat apakah watermark masih dapat dibaca.
-
-#### Contoh hasil ekstraksi pada QF tinggi
-
-**QF 100**
-
-![Watermark QF 100](hasil_watermarking/watermark_ekstrak_QF_100.png)
-
-#### Contoh hasil ekstraksi pada batas minimum OK
-
-**QF 30**
-
-![Watermark QF 30](hasil_watermarking/watermark_ekstrak_QF_30.png)
-
-#### Contoh hasil ekstraksi pada QF sangat rendah
-
-**QF 5**
-
-![Watermark QF 5](hasil_watermarking/watermark_ekstrak_QF_5.png)
+**Main idea:**  
+This step tests the robustness of the watermark under increasing compression strength.
 
 ---
 
-### Step 7 — Menghitung BER dan Accuracy
+## Step 5 — Watermark extraction and performance evaluation
 
-Kinerja watermark diukur menggunakan:
+After compression, the watermark is extracted again from each JPEG image.  
+The extraction result is compared to the original watermark using:
 
-- **BER (Bit Error Rate)** = proporsi bit watermark yang salah saat diekstrak
-- **Accuracy** = persentase bit watermark yang berhasil dibaca dengan benar
+- **BER (Bit Error Rate)**  
+- **Accuracy**
 
-Watermark dianggap **OK** jika:
+The watermark is considered **OK** if:
 
 1. `QF >= 30`
 2. `BER <= 0.30`
 
+![Step 5](docs/step5_extraction_eval.png)
+
 ---
 
-## Hasil Evaluasi
+## Quantitative Evaluation
 
 | QF | BER | Accuracy | Status |
 |---:|---:|---:|---|
@@ -128,30 +122,63 @@ Watermark dianggap **OK** jika:
 
 ---
 
-## Visualisasi Hasil
+## BER Visualization
 
-Grafik berikut menunjukkan hubungan antara QF dan BER.
+The following graph shows how the **Bit Error Rate (BER)** changes as JPEG quality decreases.
 
-![Grafik BER vs QF](hasil_watermarking/grafik_BER_vs_QF.png)
+![BER Graph](hasil_watermarking/grafik_BER_vs_QF.png)
 
-Semakin rendah nilai QF, kompresi JPEG semakin kuat dan kecenderungannya watermark menjadi semakin sulit dipertahankan.
-
----
-
-## Kesimpulan
-
-- Watermark berhasil disisipkan dan dapat diekstrak kembali dengan baik.
-- Pada QF **100 sampai 40**, hasil ekstraksi masih sangat baik dengan BER = 0.
-- Pada QF **30**, watermark masih dianggap berhasil karena BER = 0.045898 dan accuracy = 0.954102.
-- Pada QF **20, 10, dan 5**, watermark dianggap gagal karena berada di bawah batas minimum QF yang ditetapkan, yaitu 30.
-
-Jadi, **batas minimum QF yang masih dianggap OK dalam eksperimen ini adalah QF 30**.
+**Observation:**  
+For QF values from **100 to 40**, extraction is perfect with BER = 0.  
+At **QF 30**, watermark extraction is still acceptable.  
+Below **QF 30**, the watermark is considered failed according to the experiment criteria.
 
 ---
 
-## File Penting
+## Sample Output Images
 
-- `watermarking.py` → kode program utama
-- `hasil_watermarking/hasil_evaluasi_QF.csv` → hasil evaluasi dalam bentuk tabel
-- `hasil_watermarking/grafik_BER_vs_QF.png` → grafik evaluasi
-- `hasil_watermarking/` → seluruh output gambar hasil eksperimen
+### Original image
+![Original Image](hasil_watermarking/01_foto_asli.png)
+
+### Original watermark
+![Original Watermark](hasil_watermarking/02_watermark_asli.png)
+
+### Watermarked image
+![Watermarked Image](hasil_watermarking/03_foto_berwatermark_lossless.png)
+
+### Extracted watermark without compression
+![Extracted Lossless](hasil_watermarking/04_watermark_ekstrak_lossless.png)
+
+### Extracted watermark at QF 100
+![QF 100](hasil_watermarking/watermark_ekstrak_QF_100.png)
+
+### Extracted watermark at QF 30
+![QF 30](hasil_watermarking/watermark_ekstrak_QF_30.png)
+
+### Extracted watermark at QF 5
+![QF 5](hasil_watermarking/watermark_ekstrak_QF_5.png)
+
+---
+
+## Conclusion
+
+This project successfully embeds an invisible watermark into a face image using the DCT method.
+
+Based on the experiment results:
+
+- Watermark extraction is perfect from **QF 100 to QF 40**
+- Watermark is still acceptable at **QF 30**
+- Watermark is considered failed below **QF 30**
+
+Therefore, the **minimum acceptable JPEG quality factor** in this experiment is:
+
+## **QF = 30**
+
+---
+
+## Repository Contents
+
+- `watermarking.py` → main program
+- `hasil_watermarking/` → output images and evaluation results
+- `docs/` → step-by-step visual explanation images
+- `README.md` → project documentation
